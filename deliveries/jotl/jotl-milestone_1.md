@@ -52,14 +52,14 @@ Cryptographic primitives (Blake2b, Bandersnatch VRF, Ed25519, erasure coding) ar
 
 | Number | Deliverable | Link | Notes |
 |--------|-------------|------|-------|
-| 1. | Source code | [JOTL @ `333923a`](https://github.com/polykrate/JOTL/tree/333923a2d0f576232195ee86f4af855293e26dc4) | Full STF implementation in Common Lisp (SBCL). ~13,500 lines of code + ~4,800 lines of comments. |
-| 2. | Static test vectors conformance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/333923a2d0f576232195ee86f4af855293e26dc4/tests/conformance.lisp) | 1000/1000 blocks passing across all 8 traces (fallback, safrole, storage, storage_light, preimages, preimages_light, fuzzy_light, fuzzy). Run with `./scripts/test.sh`. |
-| 3. | Fuzz traces conformance | [tests/polkajam-traces.lisp](https://github.com/polykrate/JOTL/blob/333923a2d0f576232195ee86f4af855293e26dc4/tests/polkajam-traces.lisp) | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. Run with `./scripts/test-reports.sh`. |
-| 4. | Minifuzz conformance | [scripts/fuzz-target.sh](https://github.com/polykrate/JOTL/blob/333923a2d0f576232195ee86f4af855293e26dc4/scripts/fuzz-target.sh) | fuzz-v1 protocol: no_forks 102/102 ✓, forks 102/102 ✓. |
-| 5. | PVM interpreter | [src/jamvm/](https://github.com/polykrate/JOTL/tree/333923a2d0f576232195ee86f4af855293e26dc4/src/jamvm) | Pure Common Lisp PVM (GP Appendix A). AOT precomputed tables (basic-block starts, skip-distance LUT) + lazy instruction cache, zero-allocation inner loop. |
-| 6. | Host calls | [src/jam-host/](https://github.com/polykrate/JOTL/tree/333923a2d0f576232195ee86f4af855293e26dc4/src/jam-host) | All Ω host functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
-| 7. | Performance benchmarks | [tests/conformance.lisp (scoring)](https://github.com/polykrate/JOTL/blob/333923a2d0f576232195ee86f4af855293e26dc4/tests/conformance.lisp) | Parity scoring methodology. Per-trace P50, P90, Mean, P99, StdDev. Score ~16.5 on local hardware (Intel i7-10610U). |
-| 8. | Crypto FFI (Rust) | [crypto/jam-crypto/](https://github.com/polykrate/JOTL/tree/333923a2d0f576232195ee86f4af855293e26dc4/crypto/jam-crypto) | Blake2b-256, Bandersnatch VRF, Ed25519 signature verification, erasure coding. |
+| 1. | Source code | [JOTL @ `a4e004c`](https://github.com/polykrate/JOTL/tree/a4e004c6682b5dfb7f91f42673fe977dae70e4aa) | Full STF implementation in Common Lisp (SBCL). ~13,500 lines of code + ~4,800 lines of comments. |
+| 2. | Static test vectors conformance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/tests/conformance.lisp) | 1000/1000 blocks passing across all 8 traces (fallback, safrole, storage, storage_light, preimages, preimages_light, fuzzy_light, fuzzy). Run with `./scripts/test.sh`. |
+| 3. | Fuzz traces conformance | [tests/polkajam-traces.lisp](https://github.com/polykrate/JOTL/blob/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/tests/polkajam-traces.lisp) | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. Run with `./scripts/test-reports.sh`. |
+| 4. | Minifuzz conformance | [scripts/fuzz-target.sh](https://github.com/polykrate/JOTL/blob/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/scripts/fuzz-target.sh) | fuzz-v1 protocol: no_forks 102/102 ✓, forks 102/102 ✓. |
+| 5. | PVM interpreter | [src/jamvm/](https://github.com/polykrate/JOTL/tree/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/src/jamvm) | Pure Common Lisp PVM (GP Appendix A). AOT precomputed tables (basic-block starts, skip-distance LUT) + lazy instruction cache, zero-allocation inner loop. |
+| 6. | Host calls | [src/jam-host/](https://github.com/polykrate/JOTL/tree/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/src/jam-host) | All Ω host functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
+| 7. | Performance benchmarks | [tests/conformance.lisp (scoring)](https://github.com/polykrate/JOTL/blob/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/tests/conformance.lisp) | Parity scoring methodology. Per-trace P50, P90, Mean, P99, StdDev. Score ~16.5 on local hardware (Intel i7-10610U). |
+| 8. | Crypto FFI (Rust) | [crypto/jam-crypto/](https://github.com/polykrate/JOTL/tree/a4e004c6682b5dfb7f91f42673fe977dae70e4aa/crypto/jam-crypto) | Blake2b-256, Bandersnatch VRF, Ed25519 signature verification, erasure coding. |
 
 
 ## Additional Information
