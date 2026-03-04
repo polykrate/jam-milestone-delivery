@@ -72,7 +72,23 @@ The orchestrator σ (`sigma.lisp`) is a pure byte store that lazily decodes comp
 
 ### Build & Run
 
+JOTL expects two sibling repositories for test data. Clone them next to the JOTL directory:
+
+```
+parent/
+├── JOTL/                  # this repository
+├── jamtestvectors/        # w3f/jamtestvectors (static test vectors)
+└── jam-conformance/       # w3f/jam-conformance (fuzz reports & minifuzz)
+```
+
 ```bash
+# Clone test data (sibling to JOTL)
+git clone https://github.com/w3f/jamtestvectors.git ../jamtestvectors
+git clone https://github.com/polykrate/jam-conformance.git ../jam-conformance
+
+# Symlink jamtestvectors into JOTL/tests/ (expected by conformance.lisp)
+ln -sf ../../jamtestvectors tests/jamtestvectors
+
 # Build crypto FFI
 cargo build --manifest-path crypto/jam-crypto/Cargo.toml --release
 
@@ -85,3 +101,5 @@ cargo build --manifest-path crypto/jam-crypto/Cargo.toml --release
 # Launch minifuzz target
 ./scripts/fuzz-target.sh /tmp/jam_target.sock
 ```
+
+> **Note:** `tests/conformance.lisp` reads traces from `tests/jamtestvectors/traces/` and `tests/polkajam-traces.lisp` reads from `../jam-conformance/fuzz-reports/0.7.2/traces/`. These paths can be overridden via the `TRACES_DIR` environment variable for `test-reports.sh`.
