@@ -84,7 +84,7 @@ parent/
 ```bash
 # Clone test data (sibling to JOTL)
 git clone https://github.com/w3f/jamtestvectors.git ../jamtestvectors
-git clone https://github.com/polykrate/jam-conformance.git ../jam-conformance
+git clone https://github.com/w3f/jam-conformance.git ../jam-conformance
 
 # Symlink jamtestvectors into JOTL/tests/ (expected by conformance.lisp)
 ln -sf ../../jamtestvectors tests/jamtestvectors
