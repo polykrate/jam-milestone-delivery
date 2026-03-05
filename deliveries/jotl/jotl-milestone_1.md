@@ -16,9 +16,9 @@ We declare that:
 - [x] we have completed **the Web3 Foundation KYC/KYB process**.
 - [x] we used **a clear and permissive open-source license**. GPL-3.0 (OSI-approved).
 - [x] we submitted **a clear Git history and public, credibly timestamped commits**.
-- [x] we used third party libraries for: **cryptographic primitives** (Blake2b, Bandersnatch VRF, Ed25519 via Rust FFI using `ark-vrf` 0.2.1).
+- [x] we used third party libraries for: **cryptographic primitives** (Blake2b, Bandersnatch VRF, Ed25519 via Rust FFI — `ark-vrf` 0.2.1, `ark-ed-on-bls12-381-bandersnatch`, `blake2`).
 - [x] we provided **Gas, trie/DB, signature-verification, and availability (EC/DB) performance tests** to be run on standard hardware.
-- [x] we viewed the following **JAM implementation code** during our implementation: **Strawberry** (Go, Eiger — [github.com/eigerco/strawberry](https://github.com/eigerco/strawberry)) for Merkle trie bit-ordering and node format; **TypeBerry** (TypeScript, FluffyLabs — [github.com/FluffyLabs/typeberry](https://github.com/FluffyLabs/typeberry)) for AccumulateItem field order (Operand.Codec) and erasure coding stride-64 layout.
+- [x] we viewed the following **JAM implementation code** during our implementation: **Strawberry** (Go, Eiger — [github.com/eigerco/strawberry](https://github.com/eigerco/strawberry)) for Merkle trie bit-ordering and node format; **TypeBerry** (TypeScript, FluffyLabs — [github.com/FluffyLabs/typeberry](https://github.com/FluffyLabs/typeberry)) for AccumulateItem field order and erasure coding stride-64 layout.
 - [x] we have **not** had private conversations with other implementers.
 - [x] we have **not** had concerns about collusion.
 - [x] we agree to a recorded interview by the *Polkadot Technical Fellowship* on any matter arising from this milestone submission.
@@ -28,20 +28,11 @@ We declare that:
 
 ## Context
 
-JOTL (JAM On The Lisp) is a clean-room implementation of the JAM state transition function Υ(σ, B) → σ' in **Common Lisp**, targeting the [Gray Paper](https://graypaper.com) v0.7.2.
+JOTL (JAM On The Lisp) is a Common Lisp implementation of the JAM state transition function Υ(σ, B) → σ', targeting [Gray Paper](https://graypaper.com) v0.7.2.
 
-This first milestone delivers a **fully conformant STF implementation** that passes all public test vectors (1000/1000 blocks across 8 trace categories), the polkajam-fuzz traces (760/760 steps), and the minifuzz protocol (forks and no_forks).
+This milestone delivers a fully conformant STF that passes 1000/1000 static test vectors across 8 trace categories, 760/760 polkajam-fuzz steps, and 204/204 minifuzz inputs (no\_forks + forks). 16 specification-level bugs were found and resolved during conformance testing, each traced to a specific GP section.
 
-The implementation includes:
-- A complete **PVM interpreter** (GP Appendix A) in pure Common Lisp with AOT precomputed tables and lazy instruction cache
-- Full **host call** support (GP Appendix B) including all Ω functions
-- All **17 state components** (α β γ δ η ι κ λ ρ τ ϕ χ ψ π ω ξ θ) as sovereign let-over-lambda closures
-- The **4-wave dependency graph** orchestrator (GP §4.2.1) in `upsilon.lisp`
-- **Accumulation** orchestration (GP §12) with PVM execution and privilege resolution
-- **Merkle trie** state root computation (GP Appendix D)
-- A **fuzz-v1 protocol** server for conformance fuzzing
-
-Cryptographic primitives (Blake2b, Bandersnatch VRF, Ed25519, erasure coding) are implemented in Rust and accessed via CFFI.
+The codebase is ~17k lines of Common Lisp (26% comments, 33% on PVM) plus ~2k lines of Rust for cryptographic FFI. Every transition function is annotated with the corresponding GP equation. The Bandersnatch SRS is bundled (577KB) so the implementation is self-contained — no external test data dependencies at runtime.
 
 
 ## Deliverables
@@ -50,66 +41,60 @@ Cryptographic primitives (Blake2b, Bandersnatch VRF, Ed25519, erasure coding) ar
 
 - **Milestone:** 1
 
-| Number | Deliverable | Link | Notes |
-|--------|-------------|------|-------|
-| 1. | Source code | [JOTL @ `fc3481d`](https://github.com/polykrate/JOTL/tree/fc3481d673d7c95dfc69b9e07319885888ac25de) | Full STF implementation in Common Lisp (SBCL). ~13,500 lines of code + ~4,800 lines of comments. |
-| 2. | Static test vectors conformance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/fc3481d673d7c95dfc69b9e07319885888ac25de/tests/conformance.lisp) | 1000/1000 blocks passing across all 8 traces (fallback, safrole, storage, storage_light, preimages, preimages_light, fuzzy_light, fuzzy). Run with `./scripts/test.sh`. |
-| 3. | Fuzz traces conformance | [tests/polkajam-traces.lisp](https://github.com/polykrate/JOTL/blob/fc3481d673d7c95dfc69b9e07319885888ac25de/tests/polkajam-traces.lisp) | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. Run with `./scripts/test-reports.sh`. |
-| 4. | Minifuzz conformance | [scripts/fuzz-target.sh](https://github.com/polykrate/JOTL/blob/fc3481d673d7c95dfc69b9e07319885888ac25de/scripts/fuzz-target.sh) | fuzz-v1 protocol: no_forks 102/102 ✓, forks 102/102 ✓. |
-| 5. | PVM interpreter | [src/jamvm/](https://github.com/polykrate/JOTL/tree/fc3481d673d7c95dfc69b9e07319885888ac25de/src/jamvm) | Pure Common Lisp PVM (GP Appendix A). AOT precomputed tables (basic-block starts, skip-distance LUT) + lazy instruction cache, zero-allocation inner loop. |
-| 6. | Host calls | [src/jam-host/](https://github.com/polykrate/JOTL/tree/fc3481d673d7c95dfc69b9e07319885888ac25de/src/jam-host) | All Ω host functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
-| 7. | Performance benchmarks | [tests/conformance.lisp (scoring)](https://github.com/polykrate/JOTL/blob/fc3481d673d7c95dfc69b9e07319885888ac25de/tests/conformance.lisp) | Parity scoring methodology. Per-trace P50, P90, Mean, P99, StdDev. Score ~16.5 on local hardware (Intel i7-10610U). |
-| 8. | Crypto FFI (Rust) | [crypto/jam-crypto/](https://github.com/polykrate/JOTL/tree/fc3481d673d7c95dfc69b9e07319885888ac25de/crypto/jam-crypto) | Blake2b-256, Bandersnatch VRF, Ed25519 signature verification, erasure coding. |
-| 9. | Docker image | [Dockerfile](https://github.com/polykrate/JOTL/blob/fc3481d673d7c95dfc69b9e07319885888ac25de/Dockerfile) | Multi-stage build (169MB). Non-root user. Fuzz target ready: `docker build -t jotl . && docker run --rm -v /tmp:/tmp jotl /tmp/jam_target.sock` |
+| # | Deliverable | Link | Notes |
+|---|-------------|------|-------|
+| 1 | Source code | [JOTL @ `dd22b8a`](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c) | Full STF in Common Lisp (SBCL). 17 state components as immutable closures, 4-wave dependency orchestrator, PVM interpreter, all host calls. |
+| 2 | Static conformance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/tests/conformance.lisp) | 1000/1000 blocks across 8 traces (fallback, safrole, storage, storage\_light, preimages, preimages\_light, fuzzy\_light, fuzzy). |
+| 3 | Fuzz traces | [tests/polkajam-traces.lisp](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/tests/polkajam-traces.lisp) | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. |
+| 4 | Minifuzz (fuzz-v1) | [scripts/fuzz-target.sh](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/scripts/fuzz-target.sh) | no\_forks 102/102 ✓, forks 102/102 ✓. Fork-aware state manager with ancestry support. |
+| 5 | PVM interpreter | [src/jamvm/](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c/src/jamvm) | Pure Common Lisp (GP Appendix A). AOT basic-block analysis, skip-distance LUT, lazy instruction cache. |
+| 6 | Host calls | [src/jam-host/](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c/src/jam-host) | All Ω functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
+| 7 | Performance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/tests/conformance.lisp) | Per-trace P50/P90/P99/Mean. Periodic GC for bounded heap growth over long sessions. |
+| 8 | Crypto FFI | [crypto/jam-crypto/](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c/crypto/jam-crypto) | Rust: Blake2b-256, Bandersnatch Ring VRF, Ed25519. SRS bundled in `data/`. |
+| 9 | Docker image | [Dockerfile](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/Dockerfile) | Multi-stage build. Non-root user. Self-contained fuzz target. |
 
 
 ## Additional Information
 
 ### Architecture
 
-JOTL uses a **closure-based architecture** where every sigma state component is a `let-over-lambda` closure generated by a single macro (`define-state-closure`). Each closure receives messages (`:transition`, `:encode`, `:decode`) and returns a new version of itself. No CLOS, no mutation — pure functional state transitions.
+Every state component is an immutable `let-over-lambda` closure generated by `define-state-closure`. Closures encapsulate data, codec, and transition behind a message-passing interface (`:transition`, `:encode`, `:decode`). They are fork-safe by construction: no defensive copying is required for branching, and components are sovereign — orchestrators coordinate but never inspect internal state.
 
-The orchestrator σ (`sigma.lisp`) is a pure byte store that lazily decodes components on demand. Υ (`upsilon.lisp`) orchestrates the 4-wave dependency graph. `accumulate.lisp` handles §12 (R*, PVM execution, privilege resolution).
+σ (`sigma.lisp`) is a pure byte store that lazily decodes components on demand. Υ (`upsilon.lisp`) implements the 4-wave dependency graph (GP §4.2.1). `accumulate.lisp` orchestrates §12 (R\* extraction, per-service PVM execution, privilege resolution). `import-block` is the trust boundary: below it all computation is pure and deterministic.
 
-### Build & Run
+δ is stored as a flat key-value list (`delta-kvs`) in Merkle trie format (GP Appendix D), avoiding decode/encode round-trips. Services are indexed lazily via `build-sid-index` for O(1) lookups.
 
-**Docker (fuzz target — no local dependencies needed):**
+### Build & test
+
+**Docker** (self-contained — no local dependencies):
 
 ```bash
 docker build -t jotl .
 docker run --rm -v /tmp:/tmp jotl /tmp/jam_target.sock
 ```
 
-**Native (conformance tests + fuzz target):**
-
-JOTL expects two sibling repositories for test data. Clone them next to the JOTL directory:
-
-```
-parent/
-├── JOTL/                  # this repository
-├── jamtestvectors/        # w3f/jamtestvectors (static test vectors)
-└── jam-conformance/       # w3f/jam-conformance (fuzz reports & minifuzz)
-```
+**Native** (requires SBCL ≥ 2.3, Quicklisp, Rust stable):
 
 ```bash
-# Clone test data (sibling to JOTL)
+# Crypto FFI
+cargo build --manifest-path crypto/jam-crypto/Cargo.toml --release
+
+# Test data (sibling repos)
 git clone https://github.com/w3f/jamtestvectors.git ../jamtestvectors
 git clone https://github.com/w3f/jam-conformance.git ../jam-conformance
 
-# Symlink jamtestvectors into JOTL/tests/ (expected by conformance.lisp)
-ln -sf ../../jamtestvectors tests/jamtestvectors
-
-# Build crypto FFI
-cargo build --manifest-path crypto/jam-crypto/Cargo.toml --release
-
-# Run all conformance tests (1000 blocks)
+# Conformance (1000 blocks, 8 traces)
 ./scripts/test.sh
 
-# Run polkajam fuzz-reports (205 traces)
+# Polkajam fuzz-reports (205 traces)
 ./scripts/test-reports.sh
 
-# Launch minifuzz target
+# Fuzz-v1 target
 ./scripts/fuzz-target.sh /tmp/jam_target.sock
 ```
 
-> **Note:** `tests/conformance.lisp` reads traces from `tests/jamtestvectors/traces/` and `tests/polkajam-traces.lisp` reads from `../jam-conformance/fuzz-reports/0.7.2/traces/`. These paths can be overridden via the `TRACES_DIR` environment variable for `test-reports.sh`.
+### Known limitations
+
+- **Merkle trie**: full O(n log n) recompute per block. Incremental trie (O(k log n) for k modified entries) is planned for M2.
+- **δ state**: `copy-alist` creates O(n) allocations per block for fork safety. Persistent data structure planned for M2.
+- **Performance**: mid-range ranking (~13-15× polkajam baseline). PVM hot loop and incremental Merkle are the primary optimization targets.
