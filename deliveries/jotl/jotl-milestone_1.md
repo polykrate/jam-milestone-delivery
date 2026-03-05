@@ -100,5 +100,3 @@ M1 prioritises conformance correctness. The following optimisations are identifi
 - **Merkle trie**: currently full O(n log n) recompute per block → incremental trie O(k log n) for k modified entries (estimated 5-10× on light traces).
 - **δ state**: `copy-alist` O(n) per block for fork safety → persistent data structure with structural sharing.
 - **PVM hot loop**: the interpreter is pure CL; a tighter dispatch loop is the main single-block bottleneck on heavy traces.
-
-Local benchmarks (ThinkPad i7-10610U, not yet tested on the conformance Threadripper) place JOTL in mid-range. Incremental Merkle and PVM dispatch are the primary optimisation targets for M2.
