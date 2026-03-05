@@ -43,15 +43,15 @@ The codebase is ~17k lines of Common Lisp (26% comments, 33% on PVM) plus ~2k li
 
 | # | Deliverable | Link | Notes |
 |---|-------------|------|-------|
-| 1 | Source code | [JOTL @ `dd22b8a`](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c) | Full STF in Common Lisp (SBCL). 17 state components as immutable closures, 4-wave dependency orchestrator, PVM interpreter, all host calls. |
-| 2 | Static conformance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/tests/conformance.lisp) | 1000/1000 blocks across 8 traces (fallback, safrole, storage, storage\_light, preimages, preimages\_light, fuzzy\_light, fuzzy). |
-| 3 | Fuzz traces | [tests/polkajam-traces.lisp](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/tests/polkajam-traces.lisp) | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. |
-| 4 | Minifuzz (fuzz-v1) | [scripts/fuzz-target.sh](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/scripts/fuzz-target.sh) | no\_forks 102/102 ✓, forks 102/102 ✓. Fork-aware state manager with ancestry support. |
-| 5 | PVM interpreter | [src/jamvm/](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c/src/jamvm) | Pure Common Lisp (GP Appendix A). AOT basic-block analysis, skip-distance LUT, lazy instruction cache. |
-| 6 | Host calls | [src/jam-host/](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c/src/jam-host) | All Ω functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
-| 7 | Performance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/tests/conformance.lisp) | Per-trace P50/P90/P99/Mean. Periodic GC for bounded heap growth over long sessions. |
-| 8 | Crypto FFI | [crypto/jam-crypto/](https://github.com/polykrate/JOTL/tree/dd22b8a247490c1290b11ea81a41fe926c09077c/crypto/jam-crypto) | Rust: Blake2b-256, Bandersnatch Ring VRF, Ed25519. SRS bundled in `data/`. |
-| 9 | Docker image | [Dockerfile](https://github.com/polykrate/JOTL/blob/dd22b8a247490c1290b11ea81a41fe926c09077c/Dockerfile) | Multi-stage build. Non-root user. Self-contained fuzz target. |
+| 1 | Source code | [JOTL @ `f9d3446`](https://github.com/polykrate/JOTL/tree/f9d3446) | Full STF in Common Lisp (SBCL). 17 state components as immutable closures, 4-wave dependency orchestrator, PVM interpreter, all host calls. |
+| 2 | Static conformance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/f9d3446/tests/conformance.lisp) | 1000/1000 blocks across 8 traces (fallback, safrole, storage, storage\_light, preimages, preimages\_light, fuzzy\_light, fuzzy). |
+| 3 | Fuzz traces | [tests/polkajam-traces.lisp](https://github.com/polykrate/JOTL/blob/f9d3446/tests/polkajam-traces.lisp) | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. |
+| 4 | Minifuzz (fuzz-v1) | [scripts/fuzz-target.sh](https://github.com/polykrate/JOTL/blob/f9d3446/scripts/fuzz-target.sh) | no\_forks 102/102 ✓, forks 102/102 ✓. Fork-aware state manager with ancestry support. |
+| 5 | PVM interpreter | [src/jamvm/](https://github.com/polykrate/JOTL/tree/f9d3446/src/jamvm) | Pure Common Lisp (GP Appendix A). AOT basic-block analysis, skip-distance LUT, lazy instruction cache. |
+| 6 | Host calls | [src/jam-host/](https://github.com/polykrate/JOTL/tree/f9d3446/src/jam-host) | All Ω functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
+| 7 | Performance | [tests/conformance.lisp](https://github.com/polykrate/JOTL/blob/f9d3446/tests/conformance.lisp) | Per-trace P50/P90/P99/Mean. Periodic GC for bounded heap growth over long sessions. |
+| 8 | Crypto FFI | [crypto/jam-crypto/](https://github.com/polykrate/JOTL/tree/f9d3446/crypto/jam-crypto) | Rust: Blake2b-256, Bandersnatch Ring VRF, Ed25519. SRS bundled in `data/`. |
+| 9 | Docker image | [Dockerfile](https://github.com/polykrate/JOTL/blob/f9d3446/Dockerfile) | Multi-stage build. Non-root user. Self-contained fuzz target. |
 
 
 ## Additional Information
@@ -93,8 +93,12 @@ git clone https://github.com/w3f/jam-conformance.git ../jam-conformance
 ./scripts/fuzz-target.sh /tmp/jam_target.sock
 ```
 
-### Known limitations
+### Performance roadmap (M2)
 
-- **Merkle trie**: full O(n log n) recompute per block. Incremental trie (O(k log n) for k modified entries) is planned for M2.
-- **δ state**: `copy-alist` creates O(n) allocations per block for fork safety. Persistent data structure planned for M2.
-- **Performance**: mid-range ranking (~13-15× polkajam baseline). PVM hot loop and incremental Merkle are the primary optimization targets.
+M1 prioritises conformance correctness. The following optimisations are identified and planned:
+
+- **Merkle trie**: currently full O(n log n) recompute per block → incremental trie O(k log n) for k modified entries (estimated 5-10× on light traces).
+- **δ state**: `copy-alist` O(n) per block for fork safety → persistent data structure with structural sharing.
+- **PVM hot loop**: the interpreter is pure CL; a tighter dispatch loop is the main single-block bottleneck on heavy traces.
+
+Local benchmarks (ThinkPad i7-10610U, not yet tested on the conformance Threadripper) place JOTL in mid-range. Incremental Merkle and PVM dispatch are the primary optimisation targets for M2.
