@@ -31,7 +31,7 @@ We declare that:
 
 ## Context
 
-I am a former military officer who transitioned into software engineering, then moved into administration, logistics, and finance. Having seen firsthand how blockchain is underutilised in administrative and logistics workflows, I decided to acquire deep protocol-level skills by building something real.
+I am a former military officer who started into software engineering, then moved into administration, logistics, and finance. Having seen firsthand how blockchain is underutilised in administrative and logistics workflows, I decided to acquire deep protocol-level skills by building something real.
 
 **JOTL** (JAM On The Lisp) is a Common Lisp implementation of the JAM state transition function Υ(σ, B) → σ', targeting [Gray Paper](https://graypaper.com) v0.7.2. I chose Common Lisp over Rust because I believe a functional, homoiconic language is better suited to describe a complex STF: every transition reads as a direct transcription of the Gray Paper equations.
 
@@ -55,18 +55,16 @@ The codebase is ~17k lines of Common Lisp (26% comments, 33% on PVM) plus ~2k li
 | Number | Deliverable | Link | Notes |
 |--------|-------------|------|-------|
 | 1. | JOTL source code | [polykrate/JOTL][jotl] | Full STF in Common Lisp (SBCL). 17 state components as immutable closures, 4-wave dependency orchestrator, PVM interpreter, all host calls. |
-| 2. | Release v0.7.2 | [releases/v0.7.2][release] | Tagged release at GP v0.7.2 conformance. |
-| 3. | Static conformance | [tests/conformance.lisp][conformance] | 1000/1000 blocks across 8 traces (fallback, safrole, storage, storage\_light, preimages, preimages\_light, fuzzy\_light, fuzzy). |
-| 4. | Fuzz traces | [tests/polkajam-traces.lisp][fuzz-traces] | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. |
-| 5. | Minifuzz (fuzz-v1) | [scripts/fuzz-target.sh][fuzz-target] | no\_forks 102/102 ✓, forks 102/102 ✓. Fork-aware state manager with ancestry support. |
-| 6. | PVM interpreter | [src/jamvm/][pvm] | Pure Common Lisp (GP Appendix A). AOT basic-block analysis, skip-distance LUT, lazy instruction cache. |
-| 7. | Host calls | [src/jam-host/][hostcalls] | All Ω functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
-| 8. | Performance | [tests/conformance.lisp][conformance] | Per-trace P50/P90/P99/Mean. Periodic GC for bounded heap growth over long sessions. |
-| 9. | Crypto FFI | [crypto/jam-crypto/][crypto] | Rust: Blake2b-256, Bandersnatch Ring VRF, Ed25519. SRS bundled in `data/`. |
-| 10. | Docker image | [Dockerfile][dockerfile] | Multi-stage build. Non-root user. Self-contained fuzz target. |
+| 2. | Static conformance | [tests/conformance.lisp][conformance] | 1000/1000 blocks across 8 traces (fallback, safrole, storage, storage\_light, preimages, preimages\_light, fuzzy\_light, fuzzy). |
+| 3. | Fuzz traces | [tests/polkajam-traces.lisp][fuzz-traces] | 205 polkajam-fuzz traces, 760 steps: 735 pass + 25 correct rejects, 0 failures. |
+| 4. | Minifuzz (fuzz-v1) | [scripts/fuzz-target.sh][fuzz-target] | no\_forks 102/102 ✓, forks 102/102 ✓. Fork-aware state manager with ancestry support. |
+| 5. | PVM interpreter | [src/jamvm/][pvm] | Pure Common Lisp (GP Appendix A). AOT basic-block analysis, skip-distance LUT, lazy instruction cache. |
+| 6. | Host calls | [src/jam-host/][hostcalls] | All Ω functions (GP Appendix B) including accumulate, on-transfer, privileged services. |
+| 7. | Performance | [tests/conformance.lisp][conformance] | Per-trace P50/P90/P99/Mean. Periodic GC for bounded heap growth over long sessions. |
+| 8. | Crypto FFI | [crypto/jam-crypto/][crypto] | Rust: Blake2b-256, Bandersnatch Ring VRF, Ed25519. SRS bundled in `data/`. |
+| 9. | Docker image | [Dockerfile][dockerfile] | Multi-stage build. Non-root user. Self-contained fuzz target. |
 
 [jotl]: https://github.com/polykrate/JOTL
-[release]: https://github.com/polykrate/JOTL/releases/tag/v0.7.2
 [conformance]: https://github.com/polykrate/JOTL/blob/master/tests/conformance.lisp
 [fuzz-traces]: https://github.com/polykrate/JOTL/blob/master/tests/polkajam-traces.lisp
 [fuzz-target]: https://github.com/polykrate/JOTL/blob/master/scripts/fuzz-target.sh
