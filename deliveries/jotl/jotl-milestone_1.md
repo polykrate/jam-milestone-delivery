@@ -45,8 +45,8 @@ The codebase is ~17k lines of Common Lisp (26% comments, 33% on PVM) plus ~2k li
 
 ## Deliverables
 
-- [x] 1. Validating Node Path
-- [ ] 2. Non-PVM Validating Node Path
+- [] 1. Validating Node Path
+- [x] 2. Non-PVM Validating Node Path
 - [ ] 3. Light Node Path
 
 - **Milestone:** 1
